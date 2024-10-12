@@ -1,20 +1,19 @@
 ### 2024 BIG DATA HACKATHON PROPOSAL FORM
 
-#### Team Number: `204`  
+#### Team Number: `204`
 
-#### Team Name: `Alpha Animals`    
-  
-#### Your teamâ€™s hackathon idea in One sentence:
-##### `YOUR ONE SENTENCE HERE`
+#### Team Name: `Alpha Animals`
 
+#### Your team's hackathon idea in one sentence:
+Our team envisions a unified interface to streamline insights from wearable health device data, increasing health recommendation accessibility for the growing proportion of elderly patients in the San Diego community.
 
 #### A visual
 ![bigdatahackathon4sd](https://github.com/BigDataForSanDiego/bigdataforsandiego.github.io/blob/main/templates/img/bigdatahackathon_sd_2024.png?raw=true "Big Data Hackathon for San Diego 2024")
-<img height="10%" width="50%" alt="HDMA" src="https://github.com/BigDataForSanDiego/bigdataforsandiego.github.io/blob/main/templates/img/hdma2.png?raw=true"> 
+<img height="10%" width="50%" alt="HDMA" src="https://github.com/BigDataForSanDiego/bigdataforsandiego.github.io/blob/main/templates/img/hdma2.png?raw=true">
 
 <!--
-#### Theme: Enhancing Healthcareâ€™s Digital Front Door
-#### - Digital solutions to help increase access, manage health, and improve patient satisfaction along the healthcare journey -  
+#### Theme: Enhancing Healthcare's Digital Front Door
+#### - Digital solutions to help increase access, manage health, and improve patient satisfaction along the healthcare journey -
 -->
 
 #### Hackathon Five CORE Themes. `CHECK ONE or TWO QUESTIONS (insert X in [ ])`.
@@ -34,13 +33,11 @@
 > How can we design a mobile app that helps healthcare providers better understand and respect cultural differences, improving communication and care for diverse patient populations?
 - [ ] Access to Care for Rural and Remote Communities
 > How can we leverage technology to improve healthcare access for rural and remote communities, ensuring timely and specialized care for those in underserved areas? (Focus on SDSU Imperial Valley Connection - Rural/Remote)
-- [ ] Enhancing disease prevention (For Geocomputational Thinker Awards)
+- [X] Enhancing disease prevention (For Geocomputational Thinker Awards)
 > How can big (geospatial) data analytics and AI be used to improve access to information about the influence of human behavior, cultural practices, and social interactions on the spread of diseases?
 - [ ] Addressing environmental health disparities (For Geocomputational Thinker Awards)
 > How can we leverage big (geospatial) data analytics and AI to improve access to resources that mitigate the impact of environmental factors, i.e. pollution, on health disparities?
 
+#### Team Coordinator GitHub Username: Carter Tran - `cartert27`
 
-#### Team Coordinator GitHub Username: `Carter Tran cartert27`
-
-#### Team Members `Suchit Bhayani suchitbhayani, Ryan Cao RyanCao2005, Anirudh Annabathula ani9280`
-
+#### Team Members Suchit Bhayani `suchitbhayani`, Ryan Cao `RyanCao2005`, Anirudh Annabathula `ani9280`
