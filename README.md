@@ -38,6 +38,10 @@ Our team envisions a unified interface to streamline insights from wearable heal
 - [ ] Addressing environmental health disparities (For Geocomputational Thinker Awards)
 > How can we leverage big (geospatial) data analytics and AI to improve access to resources that mitigate the impact of environmental factors, i.e. pollution, on health disparities?
 
-#### Team Coordinator GitHub Username: Carter Tran - `cartert27`
+#### Team Coordinator GitHub Username: Carter Tran - `CarterT27`
 
-#### Team Members Suchit Bhayani `suchitbhayani`, Ryan Cao `RyanCao2005`, Anirudh Annabathula `ani9280`
+#### Team Members
+- Carter Tran `CarterT27`
+- Suchit Bhayani `suchitbhayani`
+- Ryan Cao `RyanCao2005`
+- Anirudh Annabathula `ani9280`
