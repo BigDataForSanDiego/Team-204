@@ -8,15 +8,9 @@
 Our team envisions a unified interface to streamline insights from wearable health device data, increasing health recommendation accessibility for the growing proportion of elderly patients in the San Diego community.
 
 #### A visual
-![bigdatahackathon4sd](https://github.com/BigDataForSanDiego/bigdataforsandiego.github.io/blob/main/templates/img/bigdatahackathon_sd_2024.png?raw=true "Big Data Hackathon for San Diego 2024")
-<img height="10%" width="50%" alt="HDMA" src="https://github.com/BigDataForSanDiego/bigdataforsandiego.github.io/blob/main/templates/img/hdma2.png?raw=true">
+![flowchart](flow_chart.png)
 
-<!--
-#### Theme: Enhancing Healthcare's Digital Front Door
-#### - Digital solutions to help increase access, manage health, and improve patient satisfaction along the healthcare journey -
--->
-
-#### Hackathon Five CORE Themes. `CHECK ONE or TWO QUESTIONS (insert X in [ ])`.
+#### Hackathon Five CORE Themes.
 - [ ] Access to care
 > How can we make it easier to access care (especially specialists) and provide clear, timely notifications, and reminders along their healthcare journey?
 - [ ] Patient satisfaction
@@ -28,7 +22,7 @@ Our team envisions a unified interface to streamline insights from wearable heal
 - [ ] Addressing mental health challenges
 > Mental health challenges may be difficult to identify and have a broad impact on health, how can we help clinicians be more in tune with patients mental health needs?
 
-#### Optional Questions. `TEAMS CAN SELECT ONE ADDITIONAL OPTIONAL QUESTION (insert X in [ ])`
+#### Optional Questions.
 - [ ] Cultural Competence in Healthcare
 > How can we design a mobile app that helps healthcare providers better understand and respect cultural differences, improving communication and care for diverse patient populations?
 - [ ] Access to Care for Rural and Remote Communities
