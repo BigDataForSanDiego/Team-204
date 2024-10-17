@@ -5,6 +5,7 @@ import datetime as dt
 
 import logging
 import time
+from pathlib import Path
 
 def clean_type(df, _type):
     name = str(_type)
@@ -33,28 +34,31 @@ def clean_types(df):
 
 def parse_xml(filepath):
 
-    tree = ET.parse(filepath) 
+    logging.debug("Parsing XML Element Tree")
+    tree = ET.parse(filepath)
 
+    logging.debug("Getting root")
     root = tree.getroot()
     record_list = [x.attrib for x in root.iter('Record')]
 
-    df = (
-        dd.DataFrame(record_list)
-        .assign(
+    logging.debug("Creating Dask DataFrame")
+    df = dd.from_pandas(pd.DataFrame(record_list), npartitions=10)
+
+    logging.debug("Assigning dates and converting to numeric")
+    df = df.assign(
         creationDate=lambda x: dd.to_datetime(x['creationDate']),
         startDate=lambda x: dd.to_datetime(x['startDate']),
         endDate=lambda x: dd.to_datetime(x['endDate']),
         value=lambda x: dd.to_numeric(x['value'], errors='coerce')
-        )
     )
 
-    dtype={'type': 'category', 'sourceName': 'category', 'sourceVersion': 'category', 'unit': 'category', 'value': 'float64', 'device': 'str'}
+    dtype={'type': 'category', 'sourceName': 'category', 'sourceVersion': 'category', 'unit': 'category', 'value': 'float32', 'device': 'str'}
 
     return df.astype(dtype)
 
 
 def parse_csv(filepath):
-    df = dd.read_csv('data/carter_export.csv', dtype={'type': 'category', 'sourceName': 'category', 'sourceVersion': 'category', 'unit': 'category', 'value': 'float64', 'device': 'str'})
+    df = dd.read_csv(filepath, dtype={'type': 'category', 'sourceName': 'category', 'sourceVersion': 'category', 'unit': 'category', 'value': 'float32', 'device': 'str'})
     df = df.assign(
         creationDate=lambda x: dd.to_datetime(x['creationDate']),
         startDate=lambda x: dd.to_datetime(x['startDate']),
@@ -73,13 +77,24 @@ def ts_type(df, _type, resample='1D', resample_agg='sum'):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
-    logging.info("Parsing CSV file")
+    data_dir = Path('data')
+    filename = 'ani_export.xml'
+    filestem = filename.split('.')[0]
+    filepath = data_dir / filename
+
+    logging.info("Parsing XML file")
     start_time = time.time()
-    df = parse_csv('data/carter_export.csv')
+    df = parse_xml(filepath)
     end_time = time.time()
-    logging.info(f"Time taken to parse CSV: {end_time - start_time} seconds")
+    logging.info(f"Time taken to parse XML: {end_time - start_time} seconds")
+
+    # logging.info("Parsing CSV file")
+    # start_time = time.time()
+    # df = parse_csv(filepath)
+    # end_time = time.time()
+    # logging.info(f"Time taken to parse CSV: {end_time - start_time} seconds")
 
     logging.info("Cleaning types")
     start_time = time.time()
@@ -89,12 +104,12 @@ if __name__ == '__main__':
 
     logging.info("Writing to parquet")
     start_time = time.time()
-    df.to_parquet('data/carter_export.parquet')
+    df.to_parquet(data_dir / f'{filestem}.parquet')
     end_time = time.time()
     logging.info(f"Time taken to write to parquet: {end_time - start_time} seconds")
 
     logging.info("Reading from parquet")
     start_time = time.time()
-    df = dd.read_parquet('data/carter_export.parquet')
+    df = dd.read_parquet(data_dir / f'{filestem}.parquet')
     end_time = time.time()
     logging.info(f"Time taken to read from parquet: {end_time - start_time} seconds")
