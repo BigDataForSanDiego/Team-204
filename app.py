@@ -1,11 +1,13 @@
 import plotly.express as px
+import plotly.graph_objects as go
+
 import pandas as pd
 
 from dash import Dash, html, dcc, Input, Output, State, callback, dash_table
 import io
 import base64
 
-from utils import parse_xml
+from utils import parse_xml, parse_csv, ts_type
 
 app = Dash(__name__)
 
@@ -39,7 +41,7 @@ app.layout = [
 )
 def update_output(contents, filename):
     if contents is None:
-        df = pd.read_csv('data/carter_export_2024.csv')
+        df = parse_csv('data/carter_export_2024_jan.csv')
     else:
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
@@ -48,8 +50,27 @@ def update_output(contents, filename):
             df = parse_xml(io.StringIO(decoded.decode('utf-8')))
         except Exception as e:
             return str(e)
-    output = dash_table.DataTable(df.to_dict('records'), [{'name': i, 'id': i} for i in df.columns], page_size=20)
-    return output
+    # output = dash_table.DataTable(df.to_dict('records'), [{'name': i, 'id': i} for i in df.columns], page_size=20)
+    series = ts_type(df, "HKQuantityTypeIdentifierActiveEnergyBurned")
+    fig = px.line(series, title=series.name)
+    fig.update_layout(
+        xaxis_title="Date",
+        yaxis_title=series.name,
+        showlegend=False,
+    )
+    return to_dash_component(fig)
+
+
+def to_dash_component(var):
+    if isinstance(var, pd.DataFrame):
+        return dash_table.DataTable(var.to_dict('records'), [{'name': i, 'id': i} for i in var.columns])
+    elif isinstance(var, pd.Series):
+        return dcc.Graph(figure=px.line(var, x=var.index, y=var.values))
+    elif isinstance(var, go.Figure):
+        return dcc.Graph(figure=var)
+    else:
+        raise ValueError(f'Invalid variable type: {type(var)}')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
