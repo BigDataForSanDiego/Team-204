@@ -51,7 +51,7 @@ def parse_csv(filepath):
 
 def ts_type(df, _type, resample='1D', resample_agg='sum'):
     if _type not in df['type'].unique():
-        print(df['type'].unique())
+        # print(df['type'].unique())
         raise ValueError(f"{_type} not found in dataframe")
     _df = df[df['type'] == _type].set_index('startDate')['value'].rename(_type)
     return _df.resample(resample).agg(resample_agg)

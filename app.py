@@ -11,6 +11,8 @@ from utils import parse_xml, parse_csv, ts_type
 
 app = Dash(__name__)
 
+df = parse_csv('data/carter_export_2024_jan_clean.csv')
+
 app.layout = [
     html.H1("Team 204 - Automated Health Insights from Wearable Devices", style={'textAlign': 'center'}),
     dcc.Upload(
@@ -31,18 +33,24 @@ app.layout = [
         },
     ),
     html.Br(),
+    dcc.Dropdown(
+        id='type-dropdown',
+        options=[{'label': col, 'value': col} for col in df['type'].unique()],
+        value='Active Energy Burned (Cal)',
+        multi=True,
+    ),
     html.Div(id='output-data-upload'),
 ]
 
 @callback(
     Output('output-data-upload', 'children'),
+    Input('type-dropdown', 'value'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
 )
-def update_output(contents, filename):
-    if contents is None:
-        df = parse_csv('data/carter_export_2024_jan.csv')
-    else:
+def update_output(types, contents, filename):
+    global df
+    if contents:
         content_type, content_string = contents.split(',')
         decoded = base64.b64decode(content_string)
 
@@ -51,9 +59,8 @@ def update_output(contents, filename):
         except Exception as e:
             return str(e)
     # output = dash_table.DataTable(df.to_dict('records'), [{'name': i, 'id': i} for i in df.columns], page_size=20)
-    cols = ['HKQuantityTypeIdentifierActiveEnergyBurned', 'HKQuantityTypeIdentifierTimeInDaylight']
     figs = []
-    for col in cols:
+    for col in types:
         series = ts_type(df, col)
         fig = px.line(series, title=series.name)
         fig.update_layout(
