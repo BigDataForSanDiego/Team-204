@@ -13,6 +13,8 @@ app = Dash(__name__)
 
 df = parse_csv('data/carter_export_2024_jan_clean.csv')
 
+server = app.server
+
 app.layout = [
     html.H1("Team 204 - Automated Health Insights from Wearable Devices", style={'textAlign': 'center'}),
     dcc.Upload(
