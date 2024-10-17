@@ -28,6 +28,9 @@ def parse_csv(filepath):
 
 
 def ts_type(df, _type, resample='1D', resample_agg='sum'):
+    if _type not in df['type'].unique():
+        print(df['type'].unique())
+        raise ValueError(f"{_type} not found in dataframe")
     def clean_name():
         name = _type
         unit = df[df['type'] == _type]['unit'].iloc[0]

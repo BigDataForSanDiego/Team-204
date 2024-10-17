@@ -51,14 +51,18 @@ def update_output(contents, filename):
         except Exception as e:
             return str(e)
     # output = dash_table.DataTable(df.to_dict('records'), [{'name': i, 'id': i} for i in df.columns], page_size=20)
-    series = ts_type(df, "HKQuantityTypeIdentifierActiveEnergyBurned")
-    fig = px.line(series, title=series.name)
-    fig.update_layout(
-        xaxis_title="Date",
-        yaxis_title=series.name,
-        showlegend=False,
-    )
-    return to_dash_component(fig)
+    cols = ['HKQuantityTypeIdentifierActiveEnergyBurned', 'HKQuantityTypeIdentifierTimeInDaylight']
+    figs = []
+    for col in cols:
+        series = ts_type(df, col)
+        fig = px.line(series, title=series.name)
+        fig.update_layout(
+            xaxis_title="Date",
+            yaxis_title=series.name,
+            showlegend=False,
+        )
+        figs.append(fig)
+    return [to_dash_component(fig) for fig in figs]
 
 
 def to_dash_component(var):
