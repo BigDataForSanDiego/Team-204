@@ -2,21 +2,27 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 import pandas as pd
+import dask.dataframe as dd
 
 from dash import Dash, html, dcc, Input, Output, State, callback, dash_table
 import io
 import base64
 
-from utils import parse_xml, parse_csv, ts_type
+from utils import parse_xml, ts_type
+
+import logging
 
 app = Dash(__name__)
 
-df = parse_csv('data/carter_export_2024_jan_clean.csv')
+df = dd.read_parquet('data/carter_export.parquet')
 
 server = app.server
 
+valid_types = [_type for _type in df['type'].unique().compute() if 'nan' not in _type]
+
 app.layout = [
     html.H1("Team 204 - Automated Health Insights from Wearable Devices", style={'textAlign': 'center'}),
+    html.P("By default we display metrics based on Carter's Apple Watch data. Note that he switched to the Apple Watch Ultra in April 2023, so metrics may be measured slightly differently before and after this date.You can upload your own data to visualize your own metrics."),
     dcc.Upload(
         id='upload-data',
         children=html.Div([
@@ -35,10 +41,11 @@ app.layout = [
         },
     ),
     html.Br(),
+    html.P("Select the metrics you want to visualize:"),
     dcc.Dropdown(
         id='type-dropdown',
-        options=[{'label': col, 'value': col} for col in df['type'].unique()],
-        value='Active Energy Burned (Cal)',
+        options=[{'label': _type, 'value': _type} for _type in valid_types],
+        value=['Distance Walking Running (mi)'],
         multi=True,
     ),
     html.Div(id='output-data-upload'),
@@ -57,10 +64,10 @@ def update_output(types, contents, filename):
         decoded = base64.b64decode(content_string)
 
         try:
+            logging.info(f"Parsing XML file: {filename}")
             df = parse_xml(io.StringIO(decoded.decode('utf-8')))
         except Exception as e:
-            return str(e)
-    # output = dash_table.DataTable(df.to_dict('records'), [{'name': i, 'id': i} for i in df.columns], page_size=20)
+            logging.error(e)
     figs = []
     for col in types:
         series = ts_type(df, col)
@@ -71,19 +78,9 @@ def update_output(types, contents, filename):
             showlegend=False,
         )
         figs.append(fig)
-    return [to_dash_component(fig) for fig in figs]
-
-
-def to_dash_component(var):
-    if isinstance(var, pd.DataFrame):
-        return dash_table.DataTable(var.to_dict('records'), [{'name': i, 'id': i} for i in var.columns])
-    elif isinstance(var, pd.Series):
-        return dcc.Graph(figure=px.line(var, x=var.index, y=var.values))
-    elif isinstance(var, go.Figure):
-        return dcc.Graph(figure=var)
-    else:
-        raise ValueError(f'Invalid variable type: {type(var)}')
+    return [dcc.Graph(figure=fig) for fig in figs]
 
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     app.run(debug=True)

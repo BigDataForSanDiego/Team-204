@@ -1,13 +1,20 @@
 import xml.etree.ElementTree as ET
 import pandas as pd
+import dask.dataframe as dd
 import datetime as dt
 
+import logging
+import time
+
 def clean_type(df, _type):
-    name = _type
+    name = str(_type)
     try:
-        unit = df[df['type'] == _type]['unit'].iloc[0]
-    except:
-        raise ValueError(f"{_type} does not have a unit")
+        unit = df[df['type'] == name]['unit'].astype(str).dropna().compute().iloc[0]
+        logging.info(f"Detected unit: {unit} for type: {_type}")
+    except Exception as e:
+        logging.info(f"Cannot detect unit for type: {_type}")
+        logging.debug(e)
+        unit = 'NO_UNIT'
     name = name.replace('HKQuantityTypeIdentifier', '').replace('HKCategoryTypeIdentifier', '')
     i = 1
     while i < len(name):
@@ -22,7 +29,7 @@ def clean_types(df):
     mapping = {
         _type: clean_type(df, _type) for _type in df['type'].unique()
     }
-    return df.assign(type=df['type'].replace(mapping))
+    return df.assign(type=df['type'].cat.rename_categories(mapping))
 
 def parse_xml(filepath):
 
@@ -31,42 +38,63 @@ def parse_xml(filepath):
     root = tree.getroot()
     record_list = [x.attrib for x in root.iter('Record')]
 
-    record_data = (
-        pd.DataFrame(record_list)
+    df = (
+        dd.DataFrame(record_list)
         .assign(
-        creationDate=lambda x: pd.to_datetime(x['creationDate']),
-        startDate=lambda x: pd.to_datetime(x['startDate']),
-        endDate=lambda x: pd.to_datetime(x['endDate']),
-        value=lambda x: pd.to_numeric(x['value'], errors='coerce')
+        creationDate=lambda x: dd.to_datetime(x['creationDate']),
+        startDate=lambda x: dd.to_datetime(x['startDate']),
+        endDate=lambda x: dd.to_datetime(x['endDate']),
+        value=lambda x: dd.to_numeric(x['value'], errors='coerce')
         )
     )
 
-    return record_data
+    dtype={'type': 'category', 'sourceName': 'category', 'sourceVersion': 'category', 'unit': 'category', 'value': 'float64', 'device': 'str'}
+
+    return df.astype(dtype)
 
 
 def parse_csv(filepath):
-    df = pd.read_csv(filepath, parse_dates=['startDate', 'endDate', 'creationDate'])
+    df = dd.read_csv('data/carter_export.csv', dtype={'type': 'category', 'sourceName': 'category', 'sourceVersion': 'category', 'unit': 'category', 'value': 'float64', 'device': 'str'})
+    df = df.assign(
+        creationDate=lambda x: dd.to_datetime(x['creationDate']),
+        startDate=lambda x: dd.to_datetime(x['startDate']),
+        endDate=lambda x: dd.to_datetime(x['endDate']),
+    )
     return df
 
 
 def ts_type(df, _type, resample='1D', resample_agg='sum'):
-    if _type not in df['type'].unique():
-        # print(df['type'].unique())
-        raise ValueError(f"{_type} not found in dataframe")
-    _df = df[df['type'] == _type].set_index('startDate')['value'].rename(_type)
-    return _df.resample(resample).agg(resample_agg)
+    try:
+        _df = df[df['type'] == _type].set_index('startDate')['value'].rename(_type)
+        return _df.resample(resample).agg(resample_agg).compute()
+    except Exception as e:
+        logging.debug(e)
+        logging.info(f"{_type} not found in dataframe")
 
 
 if __name__ == '__main__':
-    # df = parse_xml('data/carter_export.xml')
-    # df.to_csv('data/carter_export.csv', index=False)
-    df = parse_csv('data/carter_export_2024_jan.csv')
-    # df = clean_types(df)
-    # df.to_csv('data/carter_export_2024_jan.csv', index=False)
+    logging.basicConfig(level=logging.INFO)
+
+    logging.info("Parsing CSV file")
+    start_time = time.time()
+    df = parse_csv('data/carter_export.csv')
+    end_time = time.time()
+    logging.info(f"Time taken to parse CSV: {end_time - start_time} seconds")
+
+    logging.info("Cleaning types")
+    start_time = time.time()
     df = clean_types(df)
-    df.to_csv('data/carter_export_2024_jan_clean.csv', index=False)
-    # df[(df['startDate'] >= '2024-01-01') & (df['startDate'] <= '2024-01-31')].to_csv('data/carter_export_2024_jan.csv', index=False)
-    # print(ts_type(df, 'ActiveEnergyBurned'))
-    # print(df.shape[0])
-    # print(df['type'].unique())
-    # print(ts_type(df, 'HKQuantityTypeIdentifierActiveEnergyBurned'))
+    end_time = time.time()
+    logging.info(f"Time taken to clean types: {end_time - start_time} seconds")
+
+    logging.info("Writing to parquet")
+    start_time = time.time()
+    df.to_parquet('data/carter_export.parquet')
+    end_time = time.time()
+    logging.info(f"Time taken to write to parquet: {end_time - start_time} seconds")
+
+    logging.info("Reading from parquet")
+    start_time = time.time()
+    df = dd.read_parquet('data/carter_export.parquet')
+    end_time = time.time()
+    logging.info(f"Time taken to read from parquet: {end_time - start_time} seconds")
