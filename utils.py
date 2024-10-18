@@ -5,6 +5,7 @@ import dask.dataframe as dd
 import logging
 import time
 from pathlib import Path
+import numpy as np
 
 
 def clean_type(df, _type):
@@ -88,7 +89,26 @@ def parse_csv(filepath):
 def ts_type(df, _type, resample="1D", resample_agg="sum"):
     try:
         _df = df[df["type"] == _type].set_index("startDate")["value"].rename(_type)
-        return _df.resample(resample).agg(resample_agg).compute()
+
+        if 'count/min' in _type.lower() or '%' in _type.lower():
+             return (_df
+                    .resample("1D")
+                    .agg("mean")
+                    .compute()
+                    )
+        elif 'cal' in _type.lower() or 'count' in _type.lower() or 'distance' in _type.lower():
+            return (_df
+                    .resample("1D")
+                    .agg("sum")
+                    .compute()
+                    )
+        else:
+            return (_df
+                    .resample("1D")
+                    .agg("sum")
+                    .compute()
+                    )
+            
     except Exception as e:
         logging.debug(e)
         logging.info(f"{_type} not found in dataframe")
@@ -98,7 +118,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     data_dir = Path("data")
-    filename = "ani_export.xml"
+    filename = "carter_export.xml"
     filestem = filename.split(".")[0]
     filepath = data_dir / filename
 
