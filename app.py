@@ -33,7 +33,7 @@ parquet_path = "s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_expor
 if os.path.exists('data/default.parquet'):
     df = dd.read_parquet('data/default.parquet')
 else:
-    df = dd.read_parquet(parquet_path)
+    df = dd.read_parquet(parquet_path, storage_options={'key': os.environ['BUCKETEER_AWS_ACCESS_KEY_ID'], 'secret': os.environ['BUCKETEER_AWS_SECRET_ACCESS_KEY']})
     df.to_parquet('data/default.parquet')
 
 def valid_types(_df=df):
