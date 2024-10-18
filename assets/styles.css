@@ -1,0 +1,264 @@
+/* assets/styles.css */
+
+/* General Styling for Both Themes */
+.container {
+    max-width: 960px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    /* Rounded corners for container */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    margin-top: 20px; /* Prevent overlap with toggle button */
+}
+
+.btn-primary {
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    text-decoration: none;
+}
+
+.dccDropdown {
+    margin-bottom: 135px; /* Increased from 50px to 100px */
+    border-radius: 5px;
+    width: 100%;
+    max-width: 500px;
+    min-width: 300px; /* Added min-width */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dccGraph {
+    margin-top: 20px;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.my-4 {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.my-3 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* Centered Section Styling */
+.centered-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Metrics Section Styling */
+.metrics-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Upload Container Styling */
+.upload-container {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding: 20px;
+    border-radius: 8px;
+    /* Removed border to prevent double borders */
+    transition: background-color 0.3s ease;
+    background-color: inherit; /* Inherit background from parent theme */
+}
+
+/* Dark Mode Styling */
+.dark {
+    background-color: #121212;
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    /* Ensure full viewport height */
+}
+
+.dark .text-center {
+    color: #ffffff;
+}
+
+.dark .container {
+    background-color: #1e1e1e;
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.1);
+}
+
+.dark .btn-primary {
+    background-color: #3700B3;
+    border: 1px solid #3700B3;
+    color: #ffffff;
+}
+
+.dark .btn-primary:hover {
+    background-color: #6200EE;
+    border-color: #6200EE;
+}
+
+.dark .upload-container {
+    border: 2px dashed #BB86FC;
+    color: #BB86FC;
+    background-color: #2c2c2c;
+    text-align: center; 
+}
+
+.dark .dccDropdown {
+    background-color: #2c2c2c;
+    color: #000000;
+}
+
+.dark .dccGraph {
+    background-color: #1e1e1e;
+}
+
+.dark input[type="text"],
+.dark input[type="number"],
+.dark select,
+.dark textarea {
+    background-color: #2c2c2c;
+    color: #ffffff;
+    border: 1px solid #444;
+    caret-color: #ffffff !important; /* Force cursor color to white */
+}
+
+/* Light Mode Styling */
+.light {
+    background-color: #ffffff;
+    color: #000000;
+    font-family: 'Arial', sans-serif;
+    min-height: 100vh;
+    /* Ensure full viewport height */
+}
+
+.light .text-center {
+    color: #000000;
+}
+
+.light .container {
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.light .btn-primary {
+    background-color: #007bff;
+    border: 1px solid #007bff;
+    color: #ffffff;
+}
+
+.light .btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+.light .upload-container {
+    border: 2px dashed #007bff;
+    color: #007bff;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+.light .dccDropdown {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.light .dccGraph {
+    background-color: #f8f9fa;
+}
+
+.light input[type="text"],
+.light input[type="number"],
+.light select,
+.light textarea {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ced4da;
+    caret-color: #000000 !important; /* Force cursor color to black */
+}
+
+/* Additional Styles for Improved Readability */
+.text-center {
+    margin-left: 40px;
+    padding: 10px;
+    text-align: left; /* Corrected to truly center the text */
+    /* Removed conflicting margin-left and text-align-left */
+}
+
+.btn-primary:active {
+    transform: scale(0.98);
+}
+
+/* Responsive Spacing for Graphs */
+.graph-wrapper {
+    margin-bottom: 40px;
+}
+
+/* Optional: Flexbox for Graph Layout */
+.graph-container {
+    display: flex;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: space-around;
+}
+
+.graph-item {
+    flex: 1 1 45%; /* Adjust to 45% width, allows two graphs per row with space */
+    margin: 10px;
+}
+
+/* Dropdown Menu Styling */
+.dccDropdown .Select-menu-outer {
+    max-height: 150px; /* Set a maximum height for the dropdown menu */
+    overflow-y: auto;  /* Enable vertical scrolling */
+}
+
+/* Toggle Button Styling */
+.theme-toggle-container {
+    display: flex;
+    justify-content: flex-end; /* Align the button to the top-right */
+    padding: 10px 20px;
+}
+
+.theme-toggle-button {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: color 0.3s ease;
+}
+
+.theme-toggle-button:hover {
+    color: #007bff; /* Change color on hover */
+}
+
+.theme-toggle-button:focus {
+    outline: none;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .graph-item {
+        flex: 1 1 100%; /* Full width on smaller screens */
+        margin: 10px 0;
+    }
+
+    .theme-toggle-container {
+        justify-content: center; /* Center the toggle on smaller screens */
+    }
+}

@@ -5,6 +5,7 @@ import dask.dataframe as dd
 import logging
 import time
 from pathlib import Path
+import numpy as np
 
 
 def clean_type(df, _type):
@@ -87,8 +88,23 @@ def parse_csv(filepath):
 
 def ts_type(df, _type, resample="1D", resample_agg="sum"):
     try:
-        _df = df[df["type"] == _type].set_index("startDate")["value"].rename(_type)
-        return _df.resample(resample).agg(resample_agg).compute()
+        _df = df[df["type"] == _type].set_index("startDate", sorted=True)["value"].rename(_type)
+
+        if 'count/min' in _type.lower() or '%' in _type.lower():
+             return (_df
+                    .resample("1D")
+                    .agg("mean")
+                    .compute()
+                    )
+            
+        # for calories, count, distance
+        else:
+            return (_df
+                    .resample("1D")
+                    .agg("sum")
+                    .compute()
+                    )
+            
     except Exception as e:
         logging.debug(e)
         logging.info(f"{_type} not found in dataframe")
@@ -100,11 +116,13 @@ if __name__ == "__main__":
     # local_parquet_path = "data/carter_export.parquet"
     
     # df = dd.read_parquet(local_parquet_path)
-    # df.to_parquet("s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet/", write_index=False, overwrite=True, schema={'sourceVersion': 'str'})
+    # df.to_parquet("s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet", write_index=False, overwrite=True, schema={'sourceVersion': 'str'}, write_metadata_file=True)
     # print(df['type'].astype(str).nunique().compute())
 
-    # df = dd.read_parquet("s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet/")
+    # df = dd.read_parquet("s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet")
     # print(df['type'].astype(str).nunique().compute())
+    # _df = df[df["type"] == 'Heart Rate (count/min)'].set_index("startDate", sorted=True)["value"].rename('Heart Rate (count/min)')
+    # print(_df.resample('1D').agg('mean').compute())
 
     # data_dir = Path("data")
     # filename = "carter_export.xml"
