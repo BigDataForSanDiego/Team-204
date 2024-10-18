@@ -17,7 +17,7 @@ import base64
 import logging
 import os
 
-from utils import parse_xml, ts_type
+from utils import parse_xml, ts_type, clean_types
 from layout_utils import update_figure_layout
 
 external_stylesheets = [
@@ -28,13 +28,14 @@ app = DashProxy(__name__, transforms=[ServersideOutputTransform()], external_sty
 
 server = app.server
 
-parquet_path = "s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet"
+parquet_path = "data/carter_export.parquet"
 
-if os.path.exists('data/default.parquet'):
-    df = dd.read_parquet('data/default.parquet')
-else:
-    df = dd.read_parquet(parquet_path, storage_options={'key': os.environ['BUCKETEER_AWS_ACCESS_KEY_ID'], 'secret': os.environ['BUCKETEER_AWS_SECRET_ACCESS_KEY']})
-    df.to_parquet('data/default.parquet')
+# if os.path.exists('data/default.parquet'):
+#     df = dd.read_parquet('data/default.parquet')
+# else:
+#     df = dd.read_parquet(parquet_path, storage_options={'key': os.environ['BUCKETEER_AWS_ACCESS_KEY_ID'], 'secret': os.environ['BUCKETEER_AWS_SECRET_ACCESS_KEY']})
+#     df.to_parquet('data/default.parquet')
+df = dd.read_parquet(parquet_path)
 
 def valid_types(_df=df):
     return [_type for _type in _df["type"].unique().compute() if "<NA>" not in _type]
@@ -100,31 +101,31 @@ app.layout = html.Div([
 def update_type_dropdown(_df):
     return [{'label': _type, 'value': _type} for _type in valid_types(_df)]
 
-@app.callback(
-    Output('theme-store', 'data'),
-    Output('theme-toggle-button', 'children'),
-    Output('main-container', 'className'),
-    Input('theme-toggle-button', 'n_clicks'),
-    State('theme-store', 'data'),
-)
-def toggle_theme(n_clicks, current_theme):
-    if n_clicks:
-        new_theme = 'light' if current_theme == 'dark' else 'dark'
-    else:
-        new_theme = current_theme
+# @app.callback(
+#     Output('theme-store', 'data'),
+#     Output('theme-toggle-button', 'children'),
+#     Output('main-container', 'className'),
+#     Input('theme-toggle-button', 'n_clicks'),
+#     State('theme-store', 'data'),
+# )
+# def toggle_theme(n_clicks, current_theme):
+#     if n_clicks:
+#         new_theme = 'light' if current_theme == 'dark' else 'dark'
+#     else:
+#         new_theme = current_theme
 
-    if new_theme == 'dark':
-        button_children = [
-            html.I(className='fas fa-moon'),
-            html.Span(" Light", style={'marginLeft': '8px'})
-        ]
-    else:
-        button_children = [
-            html.I(className='fas fa-sun'),
-            html.Span(" Dark ", style={'marginLeft': '8px'})
-        ]
+#     if new_theme == 'dark':
+#         button_children = [
+#             html.I(className='fas fa-moon'),
+#             html.Span(" Light", style={'marginLeft': '8px'})
+#         ]
+#     else:
+#         button_children = [
+#             html.I(className='fas fa-sun'),
+#             html.Span(" Dark ", style={'marginLeft': '8px'})
+#         ]
 
-    return new_theme, button_children, new_theme
+#     return new_theme, button_children, new_theme
 
 @app.callback(
     Output('df-store', 'data'),
@@ -139,6 +140,7 @@ def update_df(contents, filename):
         try:
             logging.info(f"Parsing XML file: {filename}")
             _df = parse_xml(io.StringIO(decoded.decode("utf-8")))
+            _df = clean_types(_df)
         except Exception as e:
             logging.error(e)
     else:
