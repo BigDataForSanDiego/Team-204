@@ -1,5 +1,5 @@
 dash
-pandas
+dash-extensions
 dask[dataframe]
 plotly
 gunicorn
