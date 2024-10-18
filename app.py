@@ -1,48 +1,53 @@
-import plotly.express as px
-import plotly.graph_objects as go
-
-import pandas as pd
 import dask.dataframe as dd
+import plotly.express as px
 
-from dash import Dash, html, dcc, Input, Output, State, callback
+from dash_extensions.enrich import (
+    DashProxy,
+    html,
+    dcc,
+    Input,
+    Output,
+    State,
+    Serverside,
+    ServersideOutputTransform,
+)
+
 import io
 import base64
+import logging
+from pathlib import Path
 
 from utils import parse_xml, ts_type
 from layout_utils import update_figure_layout  # File to change layouts for graphs
 
-import logging
-
-# Include FontAwesome for icons
 external_stylesheets = [
   "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css",
 ]
 
-app = Dash(__name__, external_stylesheets=external_stylesheets)
-
-df = dd.read_parquet('data/anihealthdata.parquet')
+app = DashProxy(__name__, transforms=[ServersideOutputTransform()], external_stylesheets=external_stylesheets)
 
 server = app.server
 
-valid_types = [_type for _type in df['type'].unique().compute() if 'nan' not in _type]
+s3_url = "s3://sdsu-big-data-hackathon/carter_export.parquet/"
+
+def valid_types(_df=dd.read_parquet(s3_url)):
+    return [_type for _type in _df["type"].unique().compute() if "nan" not in _type]
+
 
 app.layout = html.Div([
-    # Store Component to Keep Track of Theme
-    dcc.Store(id='theme-store', data='dark'),  # Initialize with 'dark' theme
+    dcc.Store(id='theme-store', data='dark'),
 
-    # Theme Toggle Button
     html.Div([
         html.Button(
             id='theme-toggle-button',
             children=[
-                html.I(className='fas fa-moon'),  # Initial icon for dark mode
+                html.I(className='fas fa-moon'),
                 html.Span("Toggle Theme", style={'marginLeft': '8px'})
             ],
             className='theme-toggle-button'
         )
-    ], className='theme-toggle-container'),  # Container for the toggle button
+    ], className='theme-toggle-container'),
 
-    # Header and Description
     html.Div([
         html.H1("Team 204 - Automated Health Insights from Wearable Devices", className='text-center my-4'),
         html.P(
@@ -51,7 +56,6 @@ app.layout = html.Div([
         )
     ], className='centered-section'),
 
-    # Upload Button
     html.Div([
         dcc.Upload(
             id='upload-data',
@@ -61,25 +65,26 @@ app.layout = html.Div([
             accept='.xml',
             className='upload-container'
         )
-    ], className='centered-section my-3'),  # Center the upload button
+    ], className='centered-section my-3'),
 
     html.Br(),
-
-    # Metrics Selection
-    html.Div([
-        html.P("Select the metrics you want to visualize:", className='text-center'),
+    html.Div(
+    html.P("Select the metrics you want to visualize:", className='text-center'),
         dcc.Dropdown(
-            id='type-dropdown',
-            options=[{'label': _type, 'value': _type} for _type in valid_types],
-            value=['Distance Walking Running (mi)'],
-            multi=True,
-            className='dccDropdown'
-        ),
-    ], className='metrics-section'),
-
-    # Output Graphs
-    html.Div(id='output-data-upload', className='container'),
-], id='main-container', className='dark')  # Default to dark theme
+        id='type-dropdown',
+        options=[{'label': _type, 'value': _type} for _type in valid_types],
+        value=['Distance Walking Running (mi)'],
+        className='dccDropdown',
+        multi=True,),
+    className='metrics-section'),
+    dcc.Loading(
+        id="loading-metrics",
+        type="graph",
+        fullscreen=True,
+        children=html.Div(id='metric-graphs', className='container'),
+    ),
+    dcc.Loading(dcc.Store(id='df-store'), fullscreen=True, type='cube'),
+], id='main-container', className='dark')
 
 @callback(
     Output('theme-store', 'data'),
@@ -108,42 +113,52 @@ def toggle_theme(n_clicks, current_theme):
 
     return new_theme, button_children, new_theme
 
-@callback(
-    Output('output-data-upload', 'children'),
-    Input('type-dropdown', 'value'),
+@app.callback(
+    Output('df-store', 'data'),
     Input('upload-data', 'contents'),
-    Input('theme-store', 'data'),  # Updated to use theme-store
     State('upload-data', 'filename'),
 )
-def update_output(types, contents, selected_theme, filename):
-    global df
+def update_df(contents, filename):
     if contents:
-        content_type, content_string = contents.split(',')
+        content_type, content_string = contents.split(",")
         decoded = base64.b64decode(content_string)
 
         try:
             logging.info(f"Parsing XML file: {filename}")
-            df = parse_xml(io.StringIO(decoded.decode('utf-8')))
+            _df = parse_xml(io.StringIO(decoded.decode("utf-8")))
         except Exception as e:
             logging.error(e)
+    else:
+        _df = dd.read_parquet(s3_url)
+    logging.debug(f"Updated df:\n{_df.head()}")
+    return Serverside(_df)
+
+
+@app.callback(
+    Output("metric-graphs", "children"),
+    Input("df-store", "data"),
+    Input("type-dropdown", "value"),
+    Input("theme-store", "data"),
+    prevent_initial_call=True,
+)
+def update_metric_graphs(_df, types, theme):
     figs = []
     for col in types:
-        series = ts_type(df, col)
+        series = ts_type(_df, col)
         fig = px.line(series, title=series.name)
-        # Use the new function to update the figure layout
-        fig = update_figure_layout(fig, series.name, selected_theme)
+        fig = update_figure_layout(fig, series.name, theme)
         figs.append(fig)
-    # Wrap each graph in a Div for spacing 
     return html.Div(
         [
             html.Div(
                 dcc.Graph(figure=fig),
-                className='graph-item'  # Use graph-item for individual graph spacing
+                className='graph-item'
             ) for fig in figs
         ],
-        className='graph-container'  # Use graph-container for flex layout
+        className='graph-container'
     )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     app.run(debug=True)
