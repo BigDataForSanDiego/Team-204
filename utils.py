@@ -77,10 +77,11 @@ def ts_type(df, _type, resample='1D', resample_agg='sum'):
 
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     data_dir = Path('data')
-    filename = 'ani_export.xml'
+    filename = 'anihealthdata.xml'
     filestem = filename.split('.')[0]
     filepath = data_dir / filename
 
