@@ -97,16 +97,25 @@ def ts_type(df, _type, resample="1D", resample_agg="sum"):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    data_dir = Path("data")
-    filename = "ani_export.xml"
-    filestem = filename.split(".")[0]
-    filepath = data_dir / filename
+    # local_parquet_path = "data/carter_export.parquet"
+    
+    # df = dd.read_parquet(local_parquet_path)
+    # df.to_parquet("s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet/", write_index=False, overwrite=True, schema={'sourceVersion': 'str'})
+    # print(df['type'].astype(str).nunique().compute())
 
-    logging.info("Parsing XML file")
-    start_time = time.time()
-    df = parse_xml(filepath)
-    end_time = time.time()
-    logging.info(f"Time taken to parse XML: {end_time - start_time} seconds")
+    # df = dd.read_parquet("s3://bucketeer-50917d91-a8dc-4c58-9970-d298294a62ca/carter_export.parquet/")
+    # print(df['type'].astype(str).nunique().compute())
+
+    # data_dir = Path("data")
+    # filename = "carter_export.xml"
+    # filestem = filename.split(".")[0]
+    # filepath = data_dir / filename
+
+    # logging.info("Parsing XML file")
+    # start_time = time.time()
+    # df = parse_xml(filepath)
+    # end_time = time.time()
+    # logging.info(f"Time taken to parse XML: {end_time - start_time} seconds")
 
     # logging.info("Parsing CSV file")
     # start_time = time.time()
@@ -114,20 +123,22 @@ if __name__ == "__main__":
     # end_time = time.time()
     # logging.info(f"Time taken to parse CSV: {end_time - start_time} seconds")
 
-    logging.info("Cleaning types")
-    start_time = time.time()
-    df = clean_types(df)
-    end_time = time.time()
-    logging.info(f"Time taken to clean types: {end_time - start_time} seconds")
+    # logging.info("Cleaning types")
+    # start_time = time.time()
+    # df = clean_types(df)
+    # end_time = time.time()
+    # logging.info(f"Time taken to clean types: {end_time - start_time} seconds")
 
-    logging.info("Writing to parquet")
-    start_time = time.time()
-    df.to_parquet(data_dir / f"{filestem}.parquet")
-    end_time = time.time()
-    logging.info(f"Time taken to write to parquet: {end_time - start_time} seconds")
+    # print(df['type'].astype(str).unique().compute())
 
-    logging.info("Reading from parquet")
-    start_time = time.time()
-    df = dd.read_parquet(data_dir / f"{filestem}.parquet")
-    end_time = time.time()
-    logging.info(f"Time taken to read from parquet: {end_time - start_time} seconds")
+    # logging.info("Writing to parquet")
+    # start_time = time.time()
+    # df.compute().to_parquet(data_dir / f"{filestem}.parquet")
+    # end_time = time.time()
+    # logging.info(f"Time taken to write to parquet: {end_time - start_time} seconds")
+
+    # logging.info("Reading from parquet")
+    # start_time = time.time()
+    # df = dd.read_parquet(data_dir / f"{filestem}.parquet")
+    # end_time = time.time()
+    # logging.info(f"Time taken to read from parquet: {end_time - start_time} seconds")
