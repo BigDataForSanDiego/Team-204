@@ -41,18 +41,18 @@ def valid_types(_df=df):
 
 
 app.layout = html.Div([
-    dcc.Store(id='theme-store', data='dark'),
+    dcc.Store(id='theme-store', data='light'),
 
-    html.Div([
-        html.Button(
-            id='theme-toggle-button',
-            children=[
-                html.I(className='fas fa-moon'),
-                html.Span("Toggle Theme", style={'marginLeft': '8px'})
-            ],
-            className='theme-toggle-button'
-        )
-    ], className='theme-toggle-container'),
+    # html.Div([
+    #     html.Button(
+    #         id='theme-toggle-button',
+    #         children=[
+    #             html.I(className='fas fa-moon'),
+    #             html.Span("Toggle Theme", style={'marginLeft': '8px'})
+    #         ],
+    #         className='theme-toggle-button'
+    #     )
+    # ], className='theme-toggle-container'),
 
     html.Div([
         html.H1("Team 204 - Automated Health Insights from Wearable Devices", className='text-center my-4'),
@@ -90,7 +90,7 @@ app.layout = html.Div([
         children=html.Div(id='metric-graphs', className='container'),
     ),
     dcc.Loading(dcc.Store(id='df-store'), fullscreen=True, type='cube'),
-], id='main-container', className='dark')
+], id='main-container', className='light')
 
 @app.callback(
     Output('type-dropdown', 'options'),
