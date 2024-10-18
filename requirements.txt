@@ -3,3 +3,4 @@ dash-extensions
 dask[dataframe]
 plotly
 gunicorn
+s3fs

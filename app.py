@@ -15,6 +15,7 @@ from dash_extensions.enrich import (
 import io
 import base64
 import logging
+from pathlib import Path
 
 from utils import parse_xml, ts_type
 
@@ -23,8 +24,9 @@ app = DashProxy(__name__, transforms=[ServersideOutputTransform()])
 
 server = app.server
 
+s3_url = "s3://sdsu-big-data-hackathon/carter_export.parquet/"
 
-def valid_types(_df=dd.read_parquet("data/carter_export.parquet")):
+def valid_types(_df=dd.read_parquet(s3_url)):
     return [_type for _type in _df["type"].unique().compute() if "nan" not in _type]
 
 
@@ -94,7 +96,7 @@ def update_df(contents, filename):
         except Exception as e:
             logging.error(e)
     else:
-        _df = dd.read_parquet("data/carter_export.parquet")
+        _df = dd.read_parquet(s3_url)
     logging.debug(f"Updated df:\n{_df.head()}")
     return Serverside(_df)
 
