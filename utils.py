@@ -96,12 +96,8 @@ def ts_type(df, _type, resample="1D", resample_agg="sum"):
                     .agg("mean")
                     .compute()
                     )
-        elif 'cal' in _type.lower() or 'count' in _type.lower() or 'distance' in _type.lower():
-            return (_df
-                    .resample("1D")
-                    .agg("sum")
-                    .compute()
-                    )
+            
+        # for calories, count, distance
         else:
             return (_df
                     .resample("1D")
