@@ -90,7 +90,7 @@ def ts_type(df, _type, resample="1D", resample_agg="sum"):
     try:
         _df = df[df["type"] == _type].set_index("startDate", sorted=True)["value"].rename(_type)
 
-        if 'count/min' in _type.lower() or '%' in _type.lower():
+        if 'count/min' in _type.lower() or '%' in _type.lower() or "/" in _type.lower():
              return (_df
                     .resample("1D")
                     .agg("mean")
