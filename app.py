@@ -59,8 +59,13 @@ app.layout = [
         value=[],
         multi=True,
     ),
-    html.Div(id="metric-graphs"),
-    dcc.Loading(dcc.Store(id="df-store"), fullscreen=True, type="default"),
+    dcc.Loading(
+        id="loading-metrics",
+        type="graph",
+        fullscreen=True,
+        children=html.Div(id="metric-graphs"),
+    ),
+    dcc.Loading(dcc.Store(id="df-store"), fullscreen=True, type="cube"),
 ]
 
 
